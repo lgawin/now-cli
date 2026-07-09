@@ -23,20 +23,37 @@ func TestRunOutputMatrix(t *testing.T) {
 		expectedOutput string
 	}{
 		{
-			name:           "Default Version Output",
+			name:           "Version Flag Output",
 			args:           []string{"now", "--version"},
 			expectedOutput: "now-cli version: v1.2.3-test-tag",
 		},
 		{
 			name:           "Format Flag - ISO",
-			args:           []string{"now", "-f", "iso"},
+			args:           []string{"now", "--format", "iso"},
 			expectedOutput: "2026-07-10T10:00:00Z", // Exact ISO string match
 		},
 		{
 			name:           "Format Flag - Epoch",
+			args:           []string{"now", "--format", "epoch"},
+			expectedOutput: "1773136800", // Exact Unix epoch for July 10, 2026 10:00:00 UTC
+		},
+		// -- short versions of flags
+		{
+			name:           "Long Version Flag Output",
+			args:           []string{"now", "-v"},
+			expectedOutput: "now-cli version: v1.2.3-test-tag",
+		},
+		{
+			name:           "Long Format Flag - ISO",
+			args:           []string{"now", "-f", "iso"},
+			expectedOutput: "2026-07-10T10:00:00Z", // Exact ISO string match
+		},
+		{
+			name:           "Long Format Flag - Epoch",
 			args:           []string{"now", "-f", "epoch"},
 			expectedOutput: "1773136800", // Exact Unix epoch for July 10, 2026 10:00:00 UTC
 		},
+		// -- defaults
 		{
 			name:           "Format Flag - default is iso",
 			args:           []string{"now"},
