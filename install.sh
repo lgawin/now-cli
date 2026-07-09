@@ -8,7 +8,7 @@ if [ -n "$1" ]; then
   echo "🎯 Installing specified version: $VERSION"
 else
   echo "🔍 Fetching the latest version tag..."
-  VERSION=$(curl -sI "https://api.github.com/repos/$REPO/releases/latest" | grep -Fi 'location:' | sed -E 's/.*\/tag\/([^[:space:]\r\n]+).*/\1/')
+  VERSION=$(curl -sI "https://github.com/$REPO/releases/latest" | grep -Fi 'location:' | sed -E 's/.*\/tag\/([^[:space:]\r\n]+).*/\1/')
 
   if [ -z "$VERSION" ]; then
     echo "⚠️ Could not find a stable release via the API redirect."
