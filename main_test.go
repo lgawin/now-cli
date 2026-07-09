@@ -7,12 +7,15 @@ import (
 )
 
 func TestRunOutput(t *testing.T) {
-	var buf bytes.Buffer
+	oldVersion := Version
+	Version = "v1.2.3-test-tag"
+	defer func() { Version = oldVersion }()
 
+	var buf bytes.Buffer
 	run(&buf)
 
 	output := strings.TrimSpace(buf.String())
-	expected := "now-cli skeleton v0.0.1"
+	expected := "now-cli version: v1.2.3-test-tag"
 
 	if output != expected {
 		t.Errorf("Unexpected output string.\nGot:      %q\nExpected: %q", output, expected)
