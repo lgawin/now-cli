@@ -2,6 +2,10 @@ now-cli
 =======
 A fast, lightweight CLI utility suite to shift system time and seamlessly synchronize root-enabled Android device clocks via `adb`.
 
+[![Build status](https://img.shields.io/github/actions/workflow/status/lgawin/now-cli/ci.yml?branch=main&label=ci&style=flat-square)](https://github.com/lgawin/now-cli/actions/workflows/ci.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/lgawin/now-cli?include_prereleases&label=version&style=flat-square&color=blue)](https://github.com/lgawin/now-cli/releases)
+[![License](https://img.shields.io/github/license/lgawin/now-cli?label=license&style=flat-square&color=orange)](https://github.com/lgawin/now-cli/blob/main/LICENSE)
+
 Installation
 ------------
 Install the latest stable version of the `now` binary and orchestrator tools directly into `/usr/local/bin`:
