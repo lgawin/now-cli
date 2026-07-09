@@ -35,7 +35,7 @@ func TestRunOutputMatrix(t *testing.T) {
 		{
 			name:           "Format Flag - Epoch",
 			args:           []string{"now", "--format", "epoch"},
-			expectedOutput: "1773136800", // Exact Unix epoch for July 10, 2026 10:00:00 UTC
+			expectedOutput: "1783677600", // Exact Unix epoch for July 10, 2026 10:00:00 UTC
 		},
 		// -- short versions of flags
 		{
@@ -51,7 +51,7 @@ func TestRunOutputMatrix(t *testing.T) {
 		{
 			name:           "Long Format Flag - Epoch",
 			args:           []string{"now", "-f", "epoch"},
-			expectedOutput: "1773136800", // Exact Unix epoch for July 10, 2026 10:00:00 UTC
+			expectedOutput: "1783677600", // Exact Unix epoch for July 10, 2026 10:00:00 UTC
 		},
 		// -- defaults
 		{
