@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+	"os"
+)
 
 func main() {
-	fmt.Println("now-cli skeleton v0.0.1")
+	run(os.Stdout)
+}
+
+func run(w io.Writer) {
+	_, _ = fmt.Fprintln(w, "now-cli skeleton v0.0.1")
 }
