@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Toolchain via Mise
+        uses: jdx/mise-action@v2
+        with:
+          cache: true
+
+      - name: Verify Dependencies
+        run: go mod tidy && git diff --exit-code
+
+      - name: Run Unit Tests
+        run: go test -v -race ./...
+
+      - name: Verify Build Compilation
+        run: go build -v -o now main.go
