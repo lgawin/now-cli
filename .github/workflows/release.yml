@@ -25,7 +25,7 @@ jobs:
         run: |
           mkdir -p dist
           GOOS=linux GOARCH=amd64 go build \
-            -ldflags="-s -w -X "main.Version=${{ github.ref_name }}" \
+            -ldflags="-s -w -X main.Version=${{ github.ref_name }}" \
             -o dist/now
 
       - name: Package Assets into Tarball
