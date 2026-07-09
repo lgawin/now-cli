@@ -1,0 +1,44 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Toolchain via Mise
+        uses: jdx/mise-action@v2
+        with:
+          cache: true
+
+      - name: Compile Cross-Platform Production Binary
+        run: |
+          mkdir -p dist
+          GOOS=linux GOARCH=amd64 go build \
+            -ldflags="-s -w" -X main.Version=${{ github.ref_name }}" \
+            -o dist/now
+
+      - name: Package Assets into Tarball
+        run: |
+          cd dist
+          tar -czf ../now-linux-x86_64.tar.gz now
+          cd ..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: now-linux-x86_64.tar.gz
+          draft: false
+          prerelease: contains(github.ref, '-alpha') || contains(github.ref, '-beta')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

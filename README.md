@@ -13,8 +13,8 @@ Building `now`
 
 ## Build instructions
 ```shell
-GOOS=linux GOARCH=amd64 go build -o build/now
-cd build
+GOOS=linux GOARCH=amd64 go build -o dist/now
+cd dist
 tar -czvf now-linux-x86_64.tar.gz now
 ```
 

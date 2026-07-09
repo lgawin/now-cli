@@ -1,17 +1,33 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION="v0.0.1-alpha"
-URL="https://github.com/lgawin/now-cli/releases/download/$VERSION/now-linux-x86_64.tar.gz"
+REPO="lgawin/now-cli"
+
+if [ -n "$1" ]; then
+  VERSION="$1"
+  echo "🎯 Installing specified version: $VERSION"
+else
+  echo "🔍 Fetching the latest version tag..."
+  VERSION=$(curl -sI "https://api.github.com/repos/$REPO/releases/latest" | grep -Fi 'location:' | sed -E 's/.*\/tag\/([^[:space:]\r\n]+).*/\1/')
+
+  if [ -z "$VERSION" ]; then
+    echo "⚠️ Could not find a stable release via the API redirect."
+    echo "💡 Defaulting to alpha bootstrapping version..."
+    VERSION="v0.0.1-alpha"
+  fi
+fi
+URL="https://github.com/$REPO/releases/download/$VERSION/now-linux-x86_64.tar.gz"
 TARGET_DIR="/usr/local/bin"
 
+echo "⏳ Starting now-cli installer ($VERSION)..."
+
 if [ "$(id -u)" -ne 0 ]; then
-    echo "🔐 Installation requires administrator privileges. Requesting sudo..."
-    curl -sL "$URL" | sudo tar -xz -C "$TARGET_DIR"
-    sudo chmod +x "$TARGET_DIR"/now
+  echo "🔐 Requesting sudo access to install to $TARGET_DIR..."
+  curl -sL "$URL" | sudo tar -xz -C "$TARGET_DIR"
+  sudo chmod +x "$TARGET_DIR"/now
 else
-    curl -sL "$URL" | tar -xz -C "$TARGET_DIR"
-    chmod +x "$TARGET_DIR"/now
+  curl -sL "$URL" | tar -xz -C "$TARGET_DIR"
+  chmod +x "$TARGET_DIR"/now
 fi
 
 echo "✅ Installation complete!"
