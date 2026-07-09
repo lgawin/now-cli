@@ -8,3 +8,8 @@ GOOS=linux GOARCH=amd64 go build -o build/now
 cd build
 tar -czvf now-linux-x86_64.tar.gz now
 ```
+
+## Install
+```shell
+curl -sL "https://raw.githubusercontent.com/lgawin/now-cli/refs/heads/main/install.sh" | sh
+```
