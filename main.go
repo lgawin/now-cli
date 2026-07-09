@@ -6,10 +6,12 @@ import (
 	"os"
 )
 
+var Version = "development"
+
 func main() {
 	run(os.Stdout)
 }
 
 func run(w io.Writer) {
-	_, _ = fmt.Fprintln(w, "now-cli skeleton v0.0.1")
+	_, _ = fmt.Fprintf(w, "now-cli version: %s\n", Version)
 }

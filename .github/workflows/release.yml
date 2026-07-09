@@ -24,7 +24,9 @@ jobs:
       - name: Compile Cross-Platform Production Binary
         run: |
           mkdir -p dist
-          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/now
+          GOOS=linux GOARCH=amd64 go build \
+            -ldflags="-s -w" -X main.Version=${{ github.ref_name }}" \
+            -o dist/now
 
       - name: Package Assets into Tarball
         run: |
