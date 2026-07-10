@@ -33,13 +33,17 @@ jobs:
           cp scripts/adb-time-sync dist/
           chmod +x dist/adb-time-sync
           cd dist
-          tar -czf ../now-linux-x86_64.tar.gz now adb-time-sync
-          cd ..
+          tar -czf now-linux-x86_64.tar.gz now adb-time-sync
+
+      - name: Run E2E Integration Test
+        run: |
+          chmod +x scripts/integration-test.sh
+          ./scripts/integration-test.sh
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: now-linux-x86_64.tar.gz
+          files: dist/now-linux-x86_64.tar.gz
           draft: false
           prerelease: contains(github.ref, '-alpha') || contains(github.ref, '-beta')
         env:
