@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NOW_BINARY="${SCRIPT_DIR}/now"
+
+if [[ ! -x "$NOW_BINARY" ]]; then
+    echo "Error: Companion binary not found or not executable at: ${NOW_BINARY}" >&2
+    echo "Please ensure 'now' is compiled and placed in the same directory." >&2
+    exit 1
+fi
+
+if ! adb get-state &>/dev/null; then
+    echo "Error: No Android device detected via ADB." >&2
+    echo "Please connect a device and ensure USB debugging is enabled." >&2
+    exit 1
+fi
+
+EPOCH_TIME=$("${NOW_BINARY}" -f epoch)
+
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    echo "--- DRY RUN MODE ---"
+    echo "Would execute: adb root && adb shell date @${EPOCH_TIME}"
+else
+    echo "Synchronizing Android system clock to epoch: ${EPOCH_TIME}..."
+    if adb root &>/dev/null; then
+        if adb shell "date @${EPOCH_TIME}" &>/dev/null; then
+            echo "Synchronization successful!"
+            exit 0
+        fi
+    fi
+    # fallback
+    if adb shell su -c "date @${EPOCH_TIME}" &>/dev/null; then
+        echo "Synchronization successful (via su fallback)!"
+    else
+        echo "Error: Failed to set device time. Ensure the Android device is rooted or 'adb root' is accessible." >&2
+        exit 1
+    fi
+fi
