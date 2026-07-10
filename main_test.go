@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"os"
+	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -23,19 +25,36 @@ func TestRunOutputMatrix(t *testing.T) {
 		t.Fatalf("Failed to load timezone: %v", err)
 	}
 
+	expectedUsageOutput := `Usage of now:
+  A fast CLI tool to generate the current time in various formats.
+
+Options:
+  -f string
+    	Shorthand for format (default "iso")
+  -format string
+    	Time format (e.g., 'epoch' or 'iso') (default "iso")
+  -v	Shorthand for version
+  -version
+    	Print version`
 	tests := []struct {
 		name           string
 		args           []string
 		expectedOutput string
 		location       *time.Location
 	}{
-		// --- Standard Base Tests ---
+		// --- version
 		{
 			name:           "Version Flag Output",
 			args:           []string{"now", "--version"},
 			expectedOutput: "now-cli version: v1.2.3-test-tag",
-			location:       time.UTC,
 		},
+		{
+			name:           "Long Version Flag Output",
+			args:           []string{"now", "-v"},
+			expectedOutput: "now-cli version: v1.2.3-test-tag",
+		},
+		// --- Formatting ---
+		// --- Short Flags ---
 		{
 			name:           "Format Flag - ISO",
 			args:           []string{"now", "--format", "iso"},
@@ -48,13 +67,7 @@ func TestRunOutputMatrix(t *testing.T) {
 			expectedOutput: "1783677600",
 			location:       time.UTC,
 		},
-		// --- Short Flags ---
-		{
-			name:           "Long Version Flag Output",
-			args:           []string{"now", "-v"},
-			expectedOutput: "now-cli version: v1.2.3-test-tag",
-			location:       time.UTC,
-		},
+		// --- Long Flags ---
 		{
 			name:           "Long Format Flag - ISO",
 			args:           []string{"now", "-f", "iso"},
@@ -93,6 +106,17 @@ func TestRunOutputMatrix(t *testing.T) {
 			expectedOutput: "1783677600",
 			location:       locWarsaw, // Even in Warsaw, the absolute epoch match holds
 		},
+		// --- Help Flags ---
+		{
+			name:           "Short Help Flag",
+			args:           []string{"now", "-h"},
+			expectedOutput: expectedUsageOutput,
+		},
+		{
+			name:           "Long Help Flag",
+			args:           []string{"now", "--help"},
+			expectedOutput: expectedUsageOutput,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -112,6 +136,41 @@ func TestRunOutputMatrix(t *testing.T) {
 			output := strings.TrimSpace(buf.String())
 			if output != tt.expectedOutput {
 				t.Errorf("%s failed:\nGot:      %q\nExpected: %q", tt.name, output, tt.expectedOutput)
+			}
+		})
+	}
+}
+
+func TestHelpFlags(t *testing.T) {
+	// Build the binary once for the tests
+	buildCmd := exec.Command("go", "build", "-o", "test-now")
+	if err := buildCmd.Run(); err != nil {
+		t.Fatalf("Failed to build test binary: %v", err)
+	}
+	// Clean up the binary after tests complete
+	defer os.Remove("test-now")
+
+	tests := []struct {
+		name     string
+		flag     string
+		expected string
+	}{
+		{name: "Short Help Flag", flag: "-h", expected: "Usage of now:"},
+		{name: "Long Help Flag", flag: "--help", expected: "Usage of now:"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			cmd := exec.Command("./test-now", tc.flag)
+			output, err := cmd.CombinedOutput()
+
+			// Help flags should exit cleanly with status code 0
+			if err != nil {
+				t.Fatalf("Expected exit code 0, got error: %v (Output: %s)", err, string(output))
+			}
+
+			if !strings.Contains(string(output), tc.expected) {
+				t.Errorf("Expected output to contain %q, got: %s", tc.expected, string(output))
 			}
 		})
 	}
