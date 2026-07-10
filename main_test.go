@@ -23,19 +23,32 @@ func TestRunOutputMatrix(t *testing.T) {
 		t.Fatalf("Failed to load timezone: %v", err)
 	}
 
+	expectedUsageOutput := `Usage of now:
+  A fast CLI tool to generate the current time in various formats.
+
+Options:
+  -f, --format <string>   Time format (e.g., 'epoch' or 'iso') (default "iso")
+  -v, --version           Print version
+  -h, --help              Show this help message`
 	tests := []struct {
 		name           string
 		args           []string
 		expectedOutput string
 		location       *time.Location
 	}{
-		// --- Standard Base Tests ---
+		// --- version
 		{
 			name:           "Version Flag Output",
 			args:           []string{"now", "--version"},
 			expectedOutput: "now-cli version: v1.2.3-test-tag",
-			location:       time.UTC,
 		},
+		{
+			name:           "Long Version Flag Output",
+			args:           []string{"now", "-v"},
+			expectedOutput: "now-cli version: v1.2.3-test-tag",
+		},
+		// --- Formatting ---
+		// --- Short Flags ---
 		{
 			name:           "Format Flag - ISO",
 			args:           []string{"now", "--format", "iso"},
@@ -48,13 +61,7 @@ func TestRunOutputMatrix(t *testing.T) {
 			expectedOutput: "1783677600",
 			location:       time.UTC,
 		},
-		// --- Short Flags ---
-		{
-			name:           "Long Version Flag Output",
-			args:           []string{"now", "-v"},
-			expectedOutput: "now-cli version: v1.2.3-test-tag",
-			location:       time.UTC,
-		},
+		// --- Long Flags ---
 		{
 			name:           "Long Format Flag - ISO",
 			args:           []string{"now", "-f", "iso"},
@@ -92,6 +99,17 @@ func TestRunOutputMatrix(t *testing.T) {
 			args:           []string{"now", "-f", "epoch"},
 			expectedOutput: "1783677600",
 			location:       locWarsaw, // Even in Warsaw, the absolute epoch match holds
+		},
+		// --- Help Flags ---
+		{
+			name:           "Short Help Flag",
+			args:           []string{"now", "-h"},
+			expectedOutput: expectedUsageOutput,
+		},
+		{
+			name:           "Long Help Flag",
+			args:           []string{"now", "--help"},
+			expectedOutput: expectedUsageOutput,
 		},
 	}
 	for _, tt := range tests {

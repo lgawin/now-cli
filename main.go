@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -15,50 +16,59 @@ func main() {
 }
 
 func run(
-	w io.Writer,
+	out io.Writer,
 	args []string,
 	nowFunc func() time.Time,
-) {
+) int {
 	fs := flag.NewFlagSet("now", flag.ContinueOnError)
-	fs.SetOutput(w)
-
-	var format string
-	fs.StringVar(&format, "f", "", "Output format (epoch, iso)")
-	fs.StringVar(&format, "format", "", "Output format (epoch, iso)")
-
-	var version bool
-	fs.BoolVar(&version, "v", false, "Print tool version")
-	fs.BoolVar(&version, "version", false, "Print tool version")
-
-	if len(args) > 1 {
-		if err := fs.Parse(args[1:]); err != nil {
-			return
-		}
+	fs.SetOutput(out)
+	fs.Usage = func() {
+		_, _ = fmt.Fprintf(out, "Usage of %s:\n", args[0])
+		_, _ = fmt.Fprintf(out, "  A fast CLI tool to generate the current time in various formats.\n\n")
+		_, _ = fmt.Fprintf(out, "Options:\n")
+		_, _ = fmt.Fprintf(out, "  -f, --format <string>   Time format (e.g., 'epoch' or 'iso') (default \"iso\")\n")
+		_, _ = fmt.Fprintf(out, "  -v, --version           Print version\n")
+		_, _ = fmt.Fprintf(out, "  -h, --help              Show this help message\n")
 	}
 
-	if version {
-		if _, err := fmt.Fprintf(w, "now-cli version: %s\n", Version); err != nil {
+	format := fs.String("format", "iso", "Time format (e.g., 'epoch' or 'iso')")
+	fs.StringVar(format, "f", "iso", "Shorthand for format")
+
+	version := fs.Bool("version", false, "Print version")
+	fs.BoolVar(version, "v", false, "Shorthand for version")
+
+	if err := fs.Parse(args[1:]); err != nil {
+		// If the error is flag.ErrHelp (caused by -h or --help), exit successfully
+		if errors.Is(err, flag.ErrHelp) {
+			return 0
+		}
+		return 1
+	}
+
+	if *version {
+		if _, err := fmt.Fprintf(out, "now-cli version: %s\n", Version); err != nil {
 			panic(err)
 		}
-		return
+		return 0
 	}
 
-	if format == "" {
-		format = "iso"
+	if *format == "" {
+		*format = "iso"
 	}
 
-	switch format {
+	switch *format {
 	case "epoch":
-		if _, err := fmt.Fprintln(w, nowFunc().Unix()); err != nil {
+		if _, err := fmt.Fprintln(out, nowFunc().Unix()); err != nil {
 			panic(err)
 		}
 	case "iso":
-		if _, err := fmt.Fprintln(w, nowFunc().Format(time.RFC3339)); err != nil {
+		if _, err := fmt.Fprintln(out, nowFunc().Format(time.RFC3339)); err != nil {
 			panic(err)
 		}
 	default:
-		if _, err := fmt.Fprintf(w, "unknown format: %s\n", format); err != nil {
+		if _, err := fmt.Fprintf(out, "unknown format: %s\n", *format); err != nil {
 			panic(err)
 		}
 	}
+	return 0
 }
