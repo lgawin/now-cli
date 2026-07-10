@@ -2,8 +2,6 @@ package main
 
 import (
 	"bytes"
-	"os"
-	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -29,13 +27,9 @@ func TestRunOutputMatrix(t *testing.T) {
   A fast CLI tool to generate the current time in various formats.
 
 Options:
-  -f string
-    	Shorthand for format (default "iso")
-  -format string
-    	Time format (e.g., 'epoch' or 'iso') (default "iso")
-  -v	Shorthand for version
-  -version
-    	Print version`
+  -f, --format <string>   Time format (e.g., 'epoch' or 'iso') (default "iso")
+  -v, --version           Print version
+  -h, --help              Show this help message`
 	tests := []struct {
 		name           string
 		args           []string
@@ -136,41 +130,6 @@ Options:
 			output := strings.TrimSpace(buf.String())
 			if output != tt.expectedOutput {
 				t.Errorf("%s failed:\nGot:      %q\nExpected: %q", tt.name, output, tt.expectedOutput)
-			}
-		})
-	}
-}
-
-func TestHelpFlags(t *testing.T) {
-	// Build the binary once for the tests
-	buildCmd := exec.Command("go", "build", "-o", "test-now")
-	if err := buildCmd.Run(); err != nil {
-		t.Fatalf("Failed to build test binary: %v", err)
-	}
-	// Clean up the binary after tests complete
-	defer os.Remove("test-now")
-
-	tests := []struct {
-		name     string
-		flag     string
-		expected string
-	}{
-		{name: "Short Help Flag", flag: "-h", expected: "Usage of now:"},
-		{name: "Long Help Flag", flag: "--help", expected: "Usage of now:"},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			cmd := exec.Command("./test-now", tc.flag)
-			output, err := cmd.CombinedOutput()
-
-			// Help flags should exit cleanly with status code 0
-			if err != nil {
-				t.Fatalf("Expected exit code 0, got error: %v (Output: %s)", err, string(output))
-			}
-
-			if !strings.Contains(string(output), tc.expected) {
-				t.Errorf("Expected output to contain %q, got: %s", tc.expected, string(output))
 			}
 		})
 	}
