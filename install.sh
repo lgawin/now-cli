@@ -25,9 +25,11 @@ if [ "$(id -u)" -ne 0 ]; then
   echo "🔐 Requesting sudo access to install to $TARGET_DIR..."
   curl -sL "$URL" | sudo tar -xz -C "$TARGET_DIR"
   sudo chmod +x "$TARGET_DIR"/now
+  [ -f "$TARGET_DIR/adb-time-sync" ] && sudo chmod +x "$TARGET_DIR"/adb-time-sync
 else
   curl -sL "$URL" | tar -xz -C "$TARGET_DIR"
   chmod +x "$TARGET_DIR"/now
+  [ -f "$TARGET_DIR/adb-time-sync" ] && chmod +x "$TARGET_DIR"/adb-time-sync
 fi
 
 echo "✅ Installation complete!"
