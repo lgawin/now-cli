@@ -2,6 +2,20 @@
 
 set -euo pipefail
 
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  echo "Usage: adb-time-sync [OPTIONS]"
+  echo ""
+  echo "Synchronizes a connected Android device's hardware clock to match the host machine."
+  echo "It dynamically locates the 'now' binary to fetch a precise Unix timestamp."
+  echo ""
+  echo "Environment Variables:"
+  echo "  DRY_RUN=true    Simulate execution without modifying the Android device."
+  echo ""
+  echo "Options:"
+  echo "  -h, --help      Show this help message and exit."
+  exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NOW_BINARY="${SCRIPT_DIR}/now"
 
