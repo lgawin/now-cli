@@ -21,13 +21,20 @@ EPOCH_TIME=$("${NOW_BINARY}" -f epoch)
 
 if [[ "${DRY_RUN:-false}" == "true" ]]; then
     echo "--- DRY RUN MODE ---"
-    echo "Would execute: adb shell su -c \"date @${EPOCH_TIME}\""
+    echo "Would execute: adb root && adb shell date @${EPOCH_TIME}"
 else
     echo "Synchronizing Android system clock to epoch: ${EPOCH_TIME}..."
+    if adb root &>/dev/null; then
+        if adb shell "date @${EPOCH_TIME}" &>/dev/null; then
+            echo "Synchronization successful!"
+            exit 0
+        fi
+    fi
+    # fallback
     if adb shell su -c "date @${EPOCH_TIME}" &>/dev/null; then
-        echo "Synchronization successful!"
+        echo "Synchronization successful (via su fallback)!"
     else
-        echo "Error: Failed to set device time. Ensure the Android device is rooted and 'su' access is allowed." >&2
+        echo "Error: Failed to set device time. Ensure the Android device is rooted or 'adb root' is accessible." >&2
         exit 1
     fi
 fi

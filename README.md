@@ -39,8 +39,31 @@ To cross-compile the release asset manually for Linux x86_64:
 
 ```shell
 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/now
+cp scripts/adb-time-sync dist/
 cd dist
-tar -czvf now-linux-x86_64.tar.gz now
+tar -czvf now-linux-x86_64.tar.gz now adb-time-sync
+```
+
+### Local Verification & Dry-Run Testing
+
+Before pushing a release artifact to production, you can execute a localized "black-box" integration test. This routine creates a completely isolated temporary directory, extracts the distribution payload archive, and validates that the orchestration script can dynamically locate and call the companion Go binary without polluting your local development workspace.
+
+Execute the following verification sequence from the repository root:
+
+```shell
+TEMP_DIR=$(mktemp -d)
+tar -xzvf dist/now-linux-x86_64.tar.gz -C "$TEMP_DIR"
+cd "$TEMP_DIR"
+ls -la
+DRY_RUN=true ./adb-time-sync
+```
+
+#### Expected Output
+The script should successfully find the relative binary path, fetch a valid 10-digit epoch timestamp, and print out the simulated Android injection sequence:
+
+```
+--- DRY RUN MODE ---
+Would execute: adb shell su -c "date @1783677620"
 ```
 
 Releasing
